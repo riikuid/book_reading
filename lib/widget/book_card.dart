@@ -15,7 +15,7 @@ class BookCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         Navigator.push(
             context,
@@ -25,14 +25,26 @@ class BookCard extends StatelessWidget {
       child: AspectRatio(
         aspectRatio: 1 / 1,
         child: Container(
-          decoration: BoxDecoration(
-            color: whiteColor,
+          decoration: const BoxDecoration(
+            color: Color(0xFFFFF4E4),
+            // border: Border.all(
+            //     // width: 1.0,
+            //     // color: primaryColor500,
+            //     ),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x19000000),
+                blurRadius: 24,
+                offset: Offset(0, 11),
+              ),
+            ],
             borderRadius: BorderRadius.all(
               Radius.circular(12.0),
             ),
           ),
           padding: const EdgeInsets.all(12),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 book.title,
@@ -40,10 +52,11 @@ class BookCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: primaryTextStyle.copyWith(
                   fontWeight: semibold,
+                  color: primaryColor800,
                 ),
               ),
-              SizedBox(
-                height: 10,
+              const SizedBox(
+                height: 5,
               ),
               Expanded(
                 child: book.pages.isNotEmpty
@@ -53,6 +66,7 @@ class BookCard extends StatelessWidget {
                         // maxLines: 2,
                         // overflow: TextOverflow.ellipsis,
                         style: primaryTextStyle.copyWith(
+                          color: subtitle1TextColor,
                           fontWeight: regular,
                         ),
                       )

@@ -58,10 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   setState(() {
                     ocrResult = text;
                   });
-                  // Lakukan apapun yang diperlukan dengan teks yang diperoleh
                 });
-
-                // Panggil fungsi lain jika perlu
               } else {
                 print("Gagal mengambil gambar");
               }

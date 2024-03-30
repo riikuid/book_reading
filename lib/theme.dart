@@ -13,16 +13,16 @@ Color greyBackgroundColor = const Color(0xFFE5E5E5);
 Color disabledColor = const Color(0xFFC4C4C4);
 Color transparentColor = Colors.transparent;
 
-Color primaryColor50 = const Color(0xFFF1F2F8);
-Color primaryColor100 = const Color(0xFFD6DFFF);
-Color primaryColor200 = const Color(0xFFAEC0FE);
-Color primaryColor300 = const Color(0xFF85A0FE);
-Color primaryColor400 = const Color(0xFF5D81FD);
-Color primaryColor500 = const Color(0xFF3461FD);
-Color primaryColor600 = const Color(0xFF2A4ECA);
-Color primaryColor700 = const Color(0xFF1F3A98);
-Color primaryColor800 = const Color(0xFF152765);
-Color primaryColor900 = const Color(0xFF21212F);
+Color primaryColor50 = const Color(0xFFFFF1EA);
+Color primaryColor100 = const Color(0xFFFFD3BC);
+Color primaryColor200 = const Color(0xFFFFBD9C);
+Color primaryColor300 = const Color(0xFFFF9F6F);
+Color primaryColor400 = const Color(0xFFFF8D53);
+Color primaryColor500 = const Color(0xFFFF7028);
+Color primaryColor600 = const Color(0xFFE86624);
+Color primaryColor700 = const Color(0xFFB5501C);
+Color primaryColor800 = const Color(0xFF8C3E16);
+Color primaryColor900 = const Color(0xFF6B2F11);
 
 // TEXT STYLE
 TextStyle primaryTextStyle = TextStyle(

@@ -5,11 +5,14 @@ import 'package:book_reading/model/page_model.dart';
 import 'package:book_reading/provider/book_provider.dart';
 import 'package:book_reading/theme.dart';
 import 'package:book_reading/widget/book_page_widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_reading/model/book_model.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -36,8 +39,34 @@ class _CreateBookPageState extends State<CreateBookPage> {
   bool isPlaying = false;
   // TtsState ttsState = TtsStat.stopped;
 
+  void _pickedImage() {
+    showDialog<ImageSource>(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Text('Choose image source'),
+        actions: [
+          ElevatedButton(
+            child: Text('Camera'),
+            onPressed: () => Navigator.pop(context, ImageSource.camera),
+          ),
+          ElevatedButton(
+            child: Text('Gallery'),
+            onPressed: () => Navigator.pop(context, ImageSource.gallery),
+          ),
+        ],
+      ),
+    ).then((ImageSource? source) async {
+      if (source == null) return;
+
+      final pickedFile = await ImagePicker().pickImage(source: source);
+      if (pickedFile == null) return;
+
+      setState(() => _image = File(pickedFile.path));
+    });
+  }
+
   Future<bool> getImageFromGallery() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
@@ -98,6 +127,7 @@ class _CreateBookPageState extends State<CreateBookPage> {
   void initState() {
     oldPages = widget.book.pages;
     newPages = List.from(oldPages);
+    flutterTts.setLanguage("id-ID");
     addTextForTts();
     super.initState();
   }
@@ -127,24 +157,34 @@ class _CreateBookPageState extends State<CreateBookPage> {
       child: Stack(
         children: [
           Scaffold(
-            backgroundColor: subtitle2TextColor,
+            backgroundColor: greyBackgroundColor,
             appBar: AppBar(
               title: Text(widget.book.title),
               actions: [
-                TextButton(
-                  onPressed: () {
-                    bookProvider
-                        .saveBook(widget.book.copyWith(pages: newPages));
-                  },
-                  child: const Text("SAVE"),
+                Visibility(
+                  visible: newPages.isNotEmpty,
+                  child: TextButton(
+                    onPressed: () {
+                      bookProvider
+                          .saveBook(widget.book.copyWith(pages: newPages));
+                    },
+                    child: const Text("SIMPAN"),
+                  ),
                 ),
               ],
             ),
             body: ListView(padding: const EdgeInsets.all(20), children: [
               ...newPages.map((page) => BookPageWidget(
+                    pageNumber: (newPages.indexWhere((element) =>
+                                element.hashCode == page.hashCode) +
+                            1)
+                        .toString(),
                     page: page,
                     onSpeakButtonPressed: () async {
                       await _speak(page.text);
+                      setState(() {
+                        isPlaying = true;
+                      });
                     },
                     onDeleteButtonPressed: () {
                       setState(() {
@@ -158,56 +198,80 @@ class _CreateBookPageState extends State<CreateBookPage> {
               //will break to another line on overflow
               direction: Axis.vertical, //use vertical to show  on vertical axis
               children: <Widget>[
-                Container(
-                  margin: EdgeInsets.all(10),
-                  child: FloatingActionButton(
-                    heroTag: "TTS",
-                    onPressed: () {
-                      isPlaying ? _stop() : _start(forTts);
-                    },
-                    backgroundColor: primaryColor100,
-                    child: Icon(
-                      isPlaying ? Icons.stop : Icons.play_arrow,
+                Semantics(
+                  label: isPlaying ? "Mulai Baca Buku" : "Berhenti Baca Buku",
+                  child: Visibility(
+                    visible: newPages.isNotEmpty,
+                    child: Container(
+                      margin: const EdgeInsets.all(10),
+                      child: FloatingActionButton(
+                        heroTag: "MULAI BACA",
+                        onPressed: () {
+                          isPlaying ? _stop() : _start(forTts);
+                        },
+                        backgroundColor:
+                            isPlaying ? primaryColor400 : primaryColor100,
+                        child: Icon(
+                          isPlaying ? Icons.stop : Icons.play_arrow,
+                          color: isPlaying ? whiteColor : Colors.black,
+                        ),
+                      ),
                     ),
                   ),
                 ),
                 Container(
                   margin: const EdgeInsets.all(10),
-                  child: FloatingActionButton(
-                    heroTag: "ADD PAGE",
-                    backgroundColor: primaryColor100,
-                    child: const Icon(Icons.add),
-                    onPressed: () async {
-                      getImageFromGallery().then(
-                        (success) {
-                          if (success) {
-                            setState(() {
-                              _isLoading = true;
-                            });
-                            readTextFromImageString().then((text) {
+                  child: Semantics(
+                    label: "Tombol Tambah Halaman Baru",
+                    child: FloatingActionButton(
+                      heroTag: "TAMBAH HALAMAN",
+                      backgroundColor: primaryColor100,
+                      child: const Icon(Icons.add),
+                      onPressed: () async {
+                        flutterTts.speak(
+                          "Arahkan Kamera sejajar dengan buku yang ingin di baca, Gunakan kangan kiri untuk mengukur",
+                        );
+                        getImageFromGallery().then(
+                          (success) {
+                            if (success) {
                               setState(() {
-                                ocrResult = text;
-                                forTts.add(text);
-                                newPages.add(PageModel(
-                                    id: const Uuid().v4(), text: text));
-                                _isLoading = false;
+                                _isLoading = true;
                               });
-                              // Lakukan apapun yang diperlukan dengan teks yang diperoleh
-                            });
+                              readTextFromImageString().then((text) {
+                                if (text.isEmpty) {
+                                  Fluttertoast.showToast(
+                                    msg: "Tidak ada kata yang terbaca",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: Colors.red,
+                                    textColor: Colors.white,
+                                    fontSize: 14.0,
+                                  );
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                } else {
+                                  setState(() {
+                                    ocrResult = text;
+                                    forTts.add(text);
+                                    newPages.add(PageModel(
+                                        id: const Uuid().v4(), text: text));
+                                    _isLoading = false;
+                                  });
+                                }
+                              });
 
-                            // Panggil fungsi lain jika perlu
-                          } else {
-                            debugPrint("Gagal mengambil gambar");
-                          }
-                        },
-                      );
-                    },
+                              // Panggil fungsi lain jika perlu
+                            } else {
+                              debugPrint("Gagal mengambil gambar");
+                            }
+                          },
+                        );
+                      },
+                    ),
                   ),
                 ), //button first
-
-                // button third
-
-                // Add more buttons here
               ],
             ),
           ),

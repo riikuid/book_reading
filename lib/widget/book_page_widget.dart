@@ -1,20 +1,22 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:book_reading/theme.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_reading/model/page_model.dart';
+import 'package:book_reading/theme.dart';
 
 class BookPageWidget extends StatelessWidget {
   final PageModel page;
+  final String pageNumber;
   final VoidCallback onDeleteButtonPressed;
   final VoidCallback onSpeakButtonPressed;
 
   const BookPageWidget({
-    super.key,
+    Key? key,
     required this.page,
+    required this.pageNumber,
     required this.onDeleteButtonPressed,
     required this.onSpeakButtonPressed,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +39,41 @@ class BookPageWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              IconButton(
-                onPressed: onDeleteButtonPressed,
-                icon: const Icon(Icons.delete),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: primaryColor400,
+                        shape: RoundedRectangleBorder(),
+                      ),
+                      onPressed: onSpeakButtonPressed,
+                      child: Text(
+                        "Baca Halaman $pageNumber",
+                        style: primaryTextStyle.copyWith(
+                          color: whiteColor,
+                          fontWeight: semibold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.red[900],
+                      shape: RoundedRectangleBorder(),
+                    ),
+                    onPressed: onDeleteButtonPressed,
+                    icon: Icon(
+                      Icons.delete,
+                      size: 18,
+                      color: whiteColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
               ),
               Text(
                 page.text,
