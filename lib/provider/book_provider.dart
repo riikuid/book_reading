@@ -1,7 +1,5 @@
 import 'package:book_reading/model/book_model.dart';
-import 'package:book_reading/model/page_model.dart';
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 
 class BookProvider extends ChangeNotifier {
   List<BookModel> _books = [];

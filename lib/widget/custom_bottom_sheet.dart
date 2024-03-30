@@ -1,8 +1,6 @@
 import 'package:book_reading/model/book_model.dart';
 import 'package:book_reading/page/book/create_book_page.dart';
 import 'package:book_reading/theme.dart';
-import 'package:book_reading/widget/title_text_field.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 

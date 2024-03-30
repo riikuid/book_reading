@@ -42,31 +42,93 @@ class _CreateBookPageState extends State<CreateBookPage> {
   void _pickedImage() {
     showDialog<ImageSource>(
       context: context,
-      builder: (context) => AlertDialog(
-        content: Text('Choose image source'),
-        actions: [
-          ElevatedButton(
-            child: Text('Camera'),
-            onPressed: () => Navigator.pop(context, ImageSource.camera),
+      builder: (context) => CupertinoAlertDialog(
+        title: Text(
+          'TAMBAH HALAMAN BARU',
+          style: primaryTextStyle.copyWith(
+            fontSize: 16,
           ),
-          ElevatedButton(
-            child: Text('Gallery'),
+        ),
+        content: Text(
+          'Ambil gambar dari',
+          style: primaryTextStyle.copyWith(
+            fontSize: 14,
+          ),
+        ),
+        actions: [
+          CupertinoDialogAction(
+              child: Text(
+                'Kamera',
+                style: primaryTextStyle.copyWith(
+                  color: primaryColor700,
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(context, ImageSource.camera);
+                flutterTts.speak(
+                  "Arahkan Kamera sejajar dengan buku yang ingin di baca, Gunakan kangan kiri untuk mengukur",
+                );
+              }),
+          CupertinoDialogAction(
+            child: Text(
+              'Galeri',
+              style: primaryTextStyle.copyWith(
+                color: primaryColor700,
+              ),
+            ),
             onPressed: () => Navigator.pop(context, ImageSource.gallery),
           ),
         ],
       ),
     ).then((ImageSource? source) async {
       if (source == null) return;
-
       final pickedFile = await ImagePicker().pickImage(source: source);
       if (pickedFile == null) return;
-
       setState(() => _image = File(pickedFile.path));
+
+      setState(() {
+        _isLoading = true;
+      });
+      readTextFromImageString().then((text) {
+        if (text.isEmpty) {
+          Fluttertoast.showToast(
+            msg: "Tidak ada kata yang terbaca",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 14.0,
+          );
+          setState(() {
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            ocrResult = text;
+            forTts.add(text);
+            newPages.add(PageModel(id: const Uuid().v4(), text: text));
+            _isLoading = false;
+          });
+        }
+      });
     });
   }
 
-  Future<bool> getImageFromGallery() async {
+  Future<bool> getImageFromCamera() async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> getImageFromGallery() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
@@ -228,46 +290,47 @@ class _CreateBookPageState extends State<CreateBookPage> {
                       backgroundColor: primaryColor100,
                       child: const Icon(Icons.add),
                       onPressed: () async {
-                        flutterTts.speak(
-                          "Arahkan Kamera sejajar dengan buku yang ingin di baca, Gunakan kangan kiri untuk mengukur",
-                        );
-                        getImageFromGallery().then(
-                          (success) {
-                            if (success) {
-                              setState(() {
-                                _isLoading = true;
-                              });
-                              readTextFromImageString().then((text) {
-                                if (text.isEmpty) {
-                                  Fluttertoast.showToast(
-                                    msg: "Tidak ada kata yang terbaca",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.CENTER,
-                                    timeInSecForIosWeb: 1,
-                                    backgroundColor: Colors.red,
-                                    textColor: Colors.white,
-                                    fontSize: 14.0,
-                                  );
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
-                                } else {
-                                  setState(() {
-                                    ocrResult = text;
-                                    forTts.add(text);
-                                    newPages.add(PageModel(
-                                        id: const Uuid().v4(), text: text));
-                                    _isLoading = false;
-                                  });
-                                }
-                              });
+                        // flutterTts.speak(
+                        //   "Arahkan Kamera sejajar dengan buku yang ingin di baca, Gunakan kangan kiri untuk mengukur",
+                        // );
+                        _pickedImage();
+                        // getImageFromGallery().then(
+                        //   (success) {
+                        //     if (success) {
+                        //       setState(() {
+                        //         _isLoading = true;
+                        //       });
+                        //       readTextFromImageString().then((text) {
+                        //         if (text.isEmpty) {
+                        //           Fluttertoast.showToast(
+                        //             msg: "Tidak ada kata yang terbaca",
+                        //             toastLength: Toast.LENGTH_SHORT,
+                        //             gravity: ToastGravity.CENTER,
+                        //             timeInSecForIosWeb: 1,
+                        //             backgroundColor: Colors.red,
+                        //             textColor: Colors.white,
+                        //             fontSize: 14.0,
+                        //           );
+                        //           setState(() {
+                        //             _isLoading = false;
+                        //           });
+                        //         } else {
+                        //           setState(() {
+                        //             ocrResult = text;
+                        //             forTts.add(text);
+                        //             newPages.add(PageModel(
+                        //                 id: const Uuid().v4(), text: text));
+                        //             _isLoading = false;
+                        //           });
+                        //         }
+                        //       });
 
-                              // Panggil fungsi lain jika perlu
-                            } else {
-                              debugPrint("Gagal mengambil gambar");
-                            }
-                          },
-                        );
+                        //       // Panggil fungsi lain jika perlu
+                        //     } else {
+                        //       debugPrint("Gagal mengambil gambar");
+                        //     }
+                        //   },
+                        // );
                       },
                     ),
                   ),

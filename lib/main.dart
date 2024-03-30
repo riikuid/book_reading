@@ -1,12 +1,7 @@
-import 'dart:io';
-
 import 'package:book_reading/page/auth/sign_in_page.dart';
-import 'package:book_reading/page/book_page.dart';
 import 'package:book_reading/provider/book_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 void main() {
