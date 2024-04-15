@@ -1,13 +1,22 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:dotted_border/dotted_border.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
+
 import 'package:book_reading/provider/book_provider.dart';
 import 'package:book_reading/theme.dart';
 import 'package:book_reading/widget/book_card.dart';
 import 'package:book_reading/widget/custom_bottom_sheet.dart';
-import 'package:dotted_border/dotted_border.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final User user;
+  const HomePage({
+    Key? key,
+    required this.user,
+  }) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -25,6 +34,24 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          GestureDetector(
+            onTap: () async {
+              await FirebaseAuth.instance.signOut();
+              await GoogleSignIn().signOut();
+            },
+            child: Text(
+              "Logout",
+            ),
+          )
+        ],
+        title: Column(
+          children: [
+            Text(widget.user.providerData.first.displayName ?? "Tidak ada"),
+          ],
+        ),
+      ),
       backgroundColor: greyBackgroundColor,
       body: Consumer<BookProvider>(
         builder: (context, bookProvider, _) {
@@ -61,6 +88,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       onPressed: () {
+                        print(widget.user);
                         showModalBottomSheet<void>(
                           shape: const ContinuousRectangleBorder(
                             borderRadius: BorderRadius.only(

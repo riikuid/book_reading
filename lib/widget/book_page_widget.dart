@@ -11,12 +11,12 @@ class BookPageWidget extends StatelessWidget {
   final VoidCallback onSpeakButtonPressed;
 
   const BookPageWidget({
-    Key? key,
+    super.key,
     required this.page,
     required this.pageNumber,
     required this.onDeleteButtonPressed,
     required this.onSpeakButtonPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class BookPageWidget extends StatelessWidget {
                     child: TextButton(
                       style: TextButton.styleFrom(
                         backgroundColor: primaryColor400,
-                        shape: RoundedRectangleBorder(),
+                        shape: const RoundedRectangleBorder(),
                       ),
                       onPressed: onSpeakButtonPressed,
                       child: Text(
@@ -61,7 +61,7 @@ class BookPageWidget extends StatelessWidget {
                   IconButton(
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.red[900],
-                      shape: RoundedRectangleBorder(),
+                      shape: const RoundedRectangleBorder(),
                     ),
                     onPressed: onDeleteButtonPressed,
                     icon: Icon(

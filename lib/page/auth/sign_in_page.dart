@@ -1,7 +1,9 @@
 import 'package:book_reading/page/home_page.dart';
 import 'package:book_reading/theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -11,7 +13,69 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
+  // User? _user;
   bool isObscure = true;
+
+  // final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // void handleSignInGoogle() {
+  //   if (_user == null) {
+  //     try {
+  //       GoogleAuthProvider googleAuthProvider = GoogleAuthProvider();
+  //       _auth.signInWithProvider(googleAuthProvider);
+  //     } catch (e) {
+  //       print(e);
+  //     }
+  //   } else {
+  //     print(" ini email masuk ${_user!.email}");
+  //   }
+  // }
+
+  Future<User?> loginWithGoogle() async {
+    final googleAcount = await GoogleSignIn().signIn();
+
+    final googleAuth = await googleAcount?.authentication;
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    final userCredential =
+        await FirebaseAuth.instance.signInWithCredential(credential);
+    userCredential.user!.updateDisplayName(
+        userCredential.additionalUserInfo!.authorizationCode);
+
+    return userCredential.user;
+  }
+
+  handleSignIn() async {
+    try {
+      final user = await loginWithGoogle();
+    } on FirebaseAuthException catch (error) {
+      print(error);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message ?? "Somethign went wrong"),
+        ),
+      );
+    } catch (error) {
+      print(error.toString());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            error.toString(),
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +116,7 @@ class _SignInPageState extends State<SignInPage> {
                         Radius.circular(10.0),
                       ),
                     )),
-                onPressed: () {},
+                onPressed: handleSignIn,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -178,12 +242,12 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const HomePage(),
-                    ),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => const HomePage(),
+                  //   ),
+                  // );
                 },
                 child: Text(
                   "Log In",

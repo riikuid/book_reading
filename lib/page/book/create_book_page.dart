@@ -9,7 +9,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_reading/model/book_model.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -290,47 +289,7 @@ class _CreateBookPageState extends State<CreateBookPage> {
                       backgroundColor: primaryColor100,
                       child: const Icon(Icons.add),
                       onPressed: () async {
-                        // flutterTts.speak(
-                        //   "Arahkan Kamera sejajar dengan buku yang ingin di baca, Gunakan kangan kiri untuk mengukur",
-                        // );
                         _pickedImage();
-                        // getImageFromGallery().then(
-                        //   (success) {
-                        //     if (success) {
-                        //       setState(() {
-                        //         _isLoading = true;
-                        //       });
-                        //       readTextFromImageString().then((text) {
-                        //         if (text.isEmpty) {
-                        //           Fluttertoast.showToast(
-                        //             msg: "Tidak ada kata yang terbaca",
-                        //             toastLength: Toast.LENGTH_SHORT,
-                        //             gravity: ToastGravity.CENTER,
-                        //             timeInSecForIosWeb: 1,
-                        //             backgroundColor: Colors.red,
-                        //             textColor: Colors.white,
-                        //             fontSize: 14.0,
-                        //           );
-                        //           setState(() {
-                        //             _isLoading = false;
-                        //           });
-                        //         } else {
-                        //           setState(() {
-                        //             ocrResult = text;
-                        //             forTts.add(text);
-                        //             newPages.add(PageModel(
-                        //                 id: const Uuid().v4(), text: text));
-                        //             _isLoading = false;
-                        //           });
-                        //         }
-                        //       });
-
-                        //       // Panggil fungsi lain jika perlu
-                        //     } else {
-                        //       debugPrint("Gagal mengambil gambar");
-                        //     }
-                        //   },
-                        // );
                       },
                     ),
                   ),

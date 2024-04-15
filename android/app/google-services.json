@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "1056618936490",
+    "project_id": "silabel-hariz",
+    "storage_bucket": "silabel-hariz.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1056618936490:android:bd968e1f75c2a23b25f8d3",
+        "android_client_info": {
+          "package_name": "com.example.book_reading"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1056618936490-g8ufgq2u6km3ft8ifg7lo2losntvku71.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPAsLq-vfRo-8GVpGYh2vbPFqlo8AU4p4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1056618936490-g8ufgq2u6km3ft8ifg7lo2losntvku71.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1056618936490-7i4eoasre7l1g60pm3cppjoemj24178o.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.bookReading"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

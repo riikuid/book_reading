@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 class BookProvider extends ChangeNotifier {
   List<BookModel> _books = [];
-
   List<BookModel> get books => _books;
 
   void addBook(BookModel book) {
