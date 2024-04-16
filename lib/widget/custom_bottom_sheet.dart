@@ -1,6 +1,7 @@
 import 'package:book_reading/model/book_model.dart';
 import 'package:book_reading/page/book/create_book_page.dart';
 import 'package:book_reading/theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -148,10 +149,12 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                             MaterialPageRoute(
                               builder: (context) => CreateBookPage(
                                 book: BookModel(
-                                  id: const Uuid().v4(),
+                                  id: "",
                                   title: bookTitleController.text,
                                   pages: [],
-                                  createdAt: DateTime.now(),
+                                  updatedAt: DateTime.now(),
+                                  userId:
+                                      FirebaseAuth.instance.currentUser!.uid,
                                 ),
                               ),
                             ),

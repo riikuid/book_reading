@@ -3,6 +3,7 @@ import 'package:book_reading/page/auth/sign_in_page.dart';
 import 'package:book_reading/page/auth_wapper.dart';
 import 'package:book_reading/page/home_page.dart';
 import 'package:book_reading/provider/book_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FirebaseFirestore.instance.settings =
+      const Settings(persistenceEnabled: true);
   runApp(const MyApp());
 }
 

@@ -5,7 +5,7 @@ import 'package:book_reading/model/page_model.dart';
 import 'package:book_reading/theme.dart';
 
 class BookPageWidget extends StatelessWidget {
-  final PageModel page;
+  final String page;
   final String pageNumber;
   final VoidCallback onDeleteButtonPressed;
   final VoidCallback onSpeakButtonPressed;
@@ -76,7 +76,7 @@ class BookPageWidget extends StatelessWidget {
                 height: 10,
               ),
               Text(
-                page.text,
+                page,
                 textAlign: TextAlign.justify,
               ),
             ],

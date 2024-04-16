@@ -63,6 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1056618936490',
     projectId: 'silabel-hariz',
     storageBucket: 'silabel-hariz.appspot.com',
+    androidClientId: '1056618936490-9r6n6anc2062usd81ehr9jmhl96m90a9.apps.googleusercontent.com',
     iosClientId: '1056618936490-7i4eoasre7l1g60pm3cppjoemj24178o.apps.googleusercontent.com',
     iosBundleId: 'com.example.bookReading',
   );

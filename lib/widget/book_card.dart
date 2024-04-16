@@ -16,6 +16,7 @@ class BookCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        print("INI ADALAH ID BUKU ${book.id}");
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -60,7 +61,7 @@ class BookCard extends StatelessWidget {
               Expanded(
                 child: book.pages.isNotEmpty
                     ? Text(
-                        book.pages.first.text,
+                        book.pages.first,
                         textAlign: TextAlign.justify,
                         // maxLines: 2,
                         // overflow: TextOverflow.ellipsis,

@@ -106,7 +106,7 @@ class _CreateBookPageState extends State<CreateBookPage> {
           setState(() {
             ocrResult = text;
             forTts.add(text);
-            newPages.add(PageModel(id: const Uuid().v4(), text: text));
+            newPages.add(text);
             _isLoading = false;
           });
         }
@@ -181,8 +181,8 @@ class _CreateBookPageState extends State<CreateBookPage> {
     // if (result == 1) setState(() => ttsState = TtsState.playing);
   }
 
-  late List<PageModel> oldPages;
-  late List<PageModel> newPages;
+  late List<String> oldPages;
+  late List<String> newPages;
 
   @override
   void initState() {
@@ -201,8 +201,8 @@ class _CreateBookPageState extends State<CreateBookPage> {
 
   void addTextForTts() {
     if (widget.book.pages.isNotEmpty) {
-      for (PageModel page in widget.book.pages) {
-        forTts.add(page.text);
+      for (String page in widget.book.pages) {
+        forTts.add(page);
       }
     }
   }
@@ -226,8 +226,8 @@ class _CreateBookPageState extends State<CreateBookPage> {
                   visible: newPages.isNotEmpty,
                   child: TextButton(
                     onPressed: () {
-                      bookProvider
-                          .saveBook(widget.book.copyWith(pages: newPages));
+                      // bookProvider
+                      //     .saveBook(widget.book.copyWith(pages: newPages));
                     },
                     child: const Text("SIMPAN"),
                   ),
@@ -242,7 +242,7 @@ class _CreateBookPageState extends State<CreateBookPage> {
                         .toString(),
                     page: page,
                     onSpeakButtonPressed: () async {
-                      await _speak(page.text);
+                      await _speak(page);
                       setState(() {
                         isPlaying = true;
                       });
@@ -250,7 +250,7 @@ class _CreateBookPageState extends State<CreateBookPage> {
                     onDeleteButtonPressed: () {
                       setState(() {
                         newPages.remove(page);
-                        forTts.remove(page.text);
+                        forTts.remove(page);
                       });
                     },
                   ))
