@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:book_reading/model/book_model.dart';
+import 'package:book_reading/model/page_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -44,15 +45,24 @@ class _HomePageState extends State<HomePage> {
     Future<List<BookModel>> getListBooks() async {
       final booksRef = FirebaseFirestore.instance.collection('books');
       final booksQuery = booksRef.where('user_id', isEqualTo: widget.user.uid);
-      // print("INI USER ID ${widget.user.uid}");
 
       final querySnapshot = await booksQuery.get();
 
-      final books = querySnapshot.docs.map((doc) {
-        final bookData = doc.data();
+      final List<BookModel> books = [];
+      for (final doc in querySnapshot.docs) {
+        final pagesQuery = await FirebaseFirestore.instance
+            .collection('pages')
+            .where('book_id', isEqualTo: doc.id)
+            .get();
 
-        return BookModel.fromJson(bookData);
-      }).toList();
+        final List<PageModel> pages = pagesQuery.docs
+            .map((doc) => PageModel.fromJson(doc.data()).copyWith(id: doc.id))
+            .toList();
+
+        final bookData = doc.data();
+        final book = BookModel.fromJson(bookData, doc.id);
+        books.add(book);
+      }
 
       return books;
     }
@@ -101,7 +111,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         onPressed: () {
-                          print(widget.user);
+                          // print(widget.user);
                           showModalBottomSheet<void>(
                             shape: const ContinuousRectangleBorder(
                               borderRadius: BorderRadius.only(
@@ -198,11 +208,10 @@ class _HomePageState extends State<HomePage> {
           }
           // var books = snapshot.data!.docs;
           List<BookModel> books = [];
-          snapshot.data!.docs.forEach((doc) {
-            var book = BookModel.fromJson(doc.data() as Map<String, dynamic>)
-                .copyWith(id: doc.id);
+          for (var doc in snapshot.data!.docs) {
+            var book = BookModel.fromJson(doc.data(), doc.id);
             books.add(book);
-          });
+          }
 
           return GridView(
             padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
@@ -235,7 +244,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       onPressed: () {
-                        print(widget.user);
+                        // print(widget.user);
                         showModalBottomSheet<void>(
                           shape: const ContinuousRectangleBorder(
                             borderRadius: BorderRadius.only(

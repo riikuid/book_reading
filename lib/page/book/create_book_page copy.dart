@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:book_reading/model/page_model.dart';
+import 'package:book_reading/provider/book_provider.dart';
 import 'package:book_reading/theme.dart';
 import 'package:book_reading/widget/book_page_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,12 +15,14 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 class CreateBookPage extends StatefulWidget {
-  final String bookId;
+  final BookModel book;
   const CreateBookPage({
     super.key,
-    required this.bookId,
+    required this.book,
   });
 
   @override
@@ -104,12 +107,31 @@ class _CreateBookPageState extends State<CreateBookPage> {
           setState(() {
             ocrResult = text;
             forTts.add(text);
-            // addPage(text);
+            addPage(text);
             _isLoading = false;
           });
         }
       });
     });
+  }
+
+  Future<void> addPage(String text) async {
+    try {
+      final CollectionReference pagesCollection =
+          FirebaseFirestore.instance.collection('pages');
+
+      await pagesCollection.add({
+        'text': text,
+        'book_id': widget.book.id,
+      });
+
+      // Perbarui juga tanggal pembaruan buku
+      await FirebaseFirestore.instance.collection('books').doc().update({
+        'updated_at': DateTime.now(),
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   Future<bool> getImageFromCamera() async {
@@ -179,12 +201,15 @@ class _CreateBookPageState extends State<CreateBookPage> {
     // if (result == 1) setState(() => ttsState = TtsState.playing);
   }
 
+  late List<PageModel> oldPages;
+  late List<PageModel> newPages;
+
   @override
   void initState() {
-    // oldPages = widget.book.pages;
-    // newPages = List.from(oldPages);
+    oldPages = widget.book.pages;
+    newPages = List.from(oldPages);
     flutterTts.setLanguage("id-ID");
-    // addTextForTts();
+    addTextForTts();
     super.initState();
   }
 
@@ -194,16 +219,17 @@ class _CreateBookPageState extends State<CreateBookPage> {
     super.dispose();
   }
 
-  // void addTextForTts() {
-  //   if (widget.book.pages.isNotEmpty) {
-  //     for (PageModel page in widget.book.pages) {
-  //       forTts.add(page.text);
-  //     }
-  //   }
-  // }
+  void addTextForTts() {
+    if (widget.book.pages.isNotEmpty) {
+      for (PageModel page in widget.book.pages) {
+        forTts.add(page.text);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    // BookProvider bookProvider = Provider.of<BookProvider>(context);
     Size screenSize = MediaQuery.of(context).size;
 
     return SizedBox(
@@ -211,109 +237,87 @@ class _CreateBookPageState extends State<CreateBookPage> {
       height: screenSize.height,
       child: Stack(
         children: [
-          StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection("books")
-                  .doc(widget.bookId)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                final data = snapshot.data?.data();
-                if (data != null) {
-                  BookModel book = BookModel.fromJson(data, widget.bookId);
-                  forTts = book.pages
-                      .map(
-                        (e) => e.text,
-                      )
-                      .toList();
-                  return Scaffold(
-                    backgroundColor: greyBackgroundColor,
-                    appBar: AppBar(
-                      title: Text(book.title),
-                    ),
-                    body: ListView(
-                      padding: const EdgeInsets.all(20),
-                      children: [
-                        ...book.pages.map((page) => BookPageWidget(
-                              pageNumber: (
-                                book.pages.indexWhere((element) =>
-                                        element.hashCode == page.hashCode) +
-                                    1,
-                              ).toString(),
-                              page: page.text,
-                              onSpeakButtonPressed: () async {
-                                await _speak(page.text);
-                                setState(() {
-                                  isPlaying = true;
-                                });
-                              },
-                              onDeleteButtonPressed: () {
-                                // setState(() {
-                                //   newPages.remove(page);
-                                //   forTts.remove(page);
-                                // });
-                              },
-                            ))
-                      ],
-                    ),
-                    floatingActionButton: Wrap(
-                      //will break to another line on overflow
-                      direction: Axis
-                          .vertical, //use vertical to show  on vertical axis
-                      children: <Widget>[
-                        Semantics(
-                          label: isPlaying
-                              ? "Mulai Baca Buku"
-                              : "Berhenti Baca Buku",
-                          child: Visibility(
-                            visible: book.pages.isNotEmpty,
-                            child: Container(
-                              margin: const EdgeInsets.all(10),
-                              child: FloatingActionButton(
-                                heroTag: "MULAI BACA",
-                                onPressed: () {
-                                  isPlaying ? _stop() : _start(forTts);
-                                },
-                                backgroundColor: isPlaying
-                                    ? primaryColor400
-                                    : primaryColor100,
-                                child: Icon(
-                                  isPlaying ? Icons.stop : Icons.play_arrow,
-                                  color: isPlaying ? whiteColor : Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.all(10),
-                          child: Semantics(
-                            label: "Tombol Tambah Halaman Baru",
-                            child: FloatingActionButton(
-                              heroTag: "TAMBAH HALAMAN",
-                              backgroundColor: primaryColor100,
-                              child: const Icon(Icons.add),
-                              onPressed: () async {
-                                _pickedImage();
-                              },
-                            ),
-                          ),
-                        ), //button first
-                      ],
-                    ),
-                  );
-                }
-                return Scaffold(
-                  backgroundColor: greyBackgroundColor,
-                  appBar: AppBar(
-                    title: Text("Gagal"),
+          Scaffold(
+            backgroundColor: greyBackgroundColor,
+            appBar: AppBar(
+              title: Text(widget.book.title),
+              actions: [
+                Visibility(
+                  visible: newPages.isNotEmpty,
+                  child: TextButton(
+                    onPressed: () {
+                      // bookProvider
+                      //     .saveBook(widget.book.copyWith(pages: newPages));
+                    },
+                    child: const Text("SIMPAN"),
                   ),
-                );
-              }),
+                ),
+              ],
+            ),
+            body: ListView(padding: const EdgeInsets.all(20), children: [
+              ...newPages.map((page) => BookPageWidget(
+                    pageNumber: (
+                      newPages.indexWhere(
+                              (element) => element.hashCode == page.hashCode) +
+                          1,
+                    ).toString(),
+                    page: page.text,
+                    onSpeakButtonPressed: () async {
+                      await _speak(page.text);
+                      setState(() {
+                        isPlaying = true;
+                      });
+                    },
+                    onDeleteButtonPressed: () {
+                      setState(() {
+                        newPages.remove(page);
+                        forTts.remove(page);
+                      });
+                    },
+                  ))
+            ]),
+            floatingActionButton: Wrap(
+              //will break to another line on overflow
+              direction: Axis.vertical, //use vertical to show  on vertical axis
+              children: <Widget>[
+                Semantics(
+                  label: isPlaying ? "Mulai Baca Buku" : "Berhenti Baca Buku",
+                  child: Visibility(
+                    visible: newPages.isNotEmpty,
+                    child: Container(
+                      margin: const EdgeInsets.all(10),
+                      child: FloatingActionButton(
+                        heroTag: "MULAI BACA",
+                        onPressed: () {
+                          isPlaying ? _stop() : _start(forTts);
+                        },
+                        backgroundColor:
+                            isPlaying ? primaryColor400 : primaryColor100,
+                        child: Icon(
+                          isPlaying ? Icons.stop : Icons.play_arrow,
+                          color: isPlaying ? whiteColor : Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.all(10),
+                  child: Semantics(
+                    label: "Tombol Tambah Halaman Baru",
+                    child: FloatingActionButton(
+                      heroTag: "TAMBAH HALAMAN",
+                      backgroundColor: primaryColor100,
+                      child: const Icon(Icons.add),
+                      onPressed: () async {
+                        _pickedImage();
+                      },
+                    ),
+                  ),
+                ), //button first
+              ],
+            ),
+          ),
           _isLoading
               ? Positioned.fill(
                   child: ColoredBox(

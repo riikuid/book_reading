@@ -31,9 +31,9 @@ class _AuthWrapperState extends State<AuthWrapper> {
         print("ini user:  ${snapshot.data}");
 
         // Mengarahkan pengguna ke halaman yang sesuai berdasarkan status login
-        if (user != null) {
-          BookProvider().getBooksForUser();
-        }
+        // if (user != null) {
+        //   BookProvider().getBooksForUser();
+        // }
         return user != null
             ? HomePage(
                 user: user,
