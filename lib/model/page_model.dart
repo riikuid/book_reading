@@ -1,11 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-class PageModel {
+import 'package:equatable/equatable.dart';
+
+class PageModel extends Equatable {
   final String id;
   final String text;
 
-  PageModel({
+  const PageModel({
     required this.id,
     required this.text,
   });
@@ -40,15 +42,5 @@ class PageModel {
       PageModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
-  String toString() => 'PageModel(id: $id, text: $text)';
-
-  @override
-  bool operator ==(covariant PageModel other) {
-    if (identical(this, other)) return true;
-
-    return other.id == id && other.text == text;
-  }
-
-  @override
-  int get hashCode => id.hashCode ^ text.hashCode;
+  List<Object?> get props => [id, text];
 }

@@ -1,4 +1,5 @@
 import 'package:book_reading/page/auth/sign_in_page.dart';
+import 'package:book_reading/page/home_page.dart';
 import 'package:book_reading/provider/book_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
           textTheme: GoogleFonts.poppinsTextTheme(),
           useMaterial3: true,
         ),
-        home: const SignInPage(),
+        home: const HomePage(),
       ),
     );
   }

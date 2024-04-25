@@ -5,11 +5,11 @@ import 'package:book_reading/model/page_model.dart';
 import 'package:book_reading/provider/book_provider.dart';
 import 'package:book_reading/theme.dart';
 import 'package:book_reading/widget/book_page_widget.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_reading/model/book_model.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -37,6 +37,7 @@ class _CreateBookPageState extends State<CreateBookPage> {
   FlutterTts flutterTts = FlutterTts();
   List<String> forTts = [];
   bool isPlaying = false;
+
   // TtsState ttsState = TtsStat.stopped;
 
   void _pickedImage() {
@@ -109,6 +110,9 @@ class _CreateBookPageState extends State<CreateBookPage> {
             forTts.add(text);
             newPages.add(PageModel(id: const Uuid().v4(), text: text));
             _isLoading = false;
+            print('oldPages: $oldPages');
+            print('newPages: $newPages');
+            print("isDiff: ${newPages == oldPages}");
           });
         }
       });
@@ -184,12 +188,16 @@ class _CreateBookPageState extends State<CreateBookPage> {
 
   late List<PageModel> oldPages;
   late List<PageModel> newPages;
+  // late bool isDiff;
 
   @override
-  void initState() {
+  void initState() async {
     oldPages = widget.book.pages;
     newPages = List.from(oldPages);
-    flutterTts.setLanguage("id-ID");
+    bool isLanguageAvailable = await flutterTts.isLanguageAvailable("id-ID");
+    if (isLanguageAvailable) {
+      flutterTts.setLanguage("id-ID");
+    }
     addTextForTts();
     super.initState();
   }
@@ -212,6 +220,7 @@ class _CreateBookPageState extends State<CreateBookPage> {
   Widget build(BuildContext context) {
     BookProvider bookProvider = Provider.of<BookProvider>(context);
     Size screenSize = MediaQuery.of(context).size;
+    bool isDiff = !const IterableEquality().equals(oldPages, newPages);
 
     return SizedBox(
       width: screenSize.width,
@@ -223,16 +232,18 @@ class _CreateBookPageState extends State<CreateBookPage> {
             appBar: AppBar(
               title: Text(widget.book.title),
               actions: [
-                Visibility(
-                  visible: newPages.isNotEmpty,
-                  child: TextButton(
-                    onPressed: () {
-                      bookProvider
-                          .saveBook(widget.book.copyWith(pages: newPages));
-                    },
-                    child: const Text("SIMPAN"),
-                  ),
-                ),
+                isDiff
+                    ? TextButton(
+                        onPressed: () {
+                          bookProvider
+                              .saveBook(widget.book.copyWith(pages: newPages));
+                          setState(() {
+                            oldPages = List.from(newPages);
+                          });
+                        },
+                        child: const Text("SIMPAN"),
+                      )
+                    : SizedBox(),
               ],
             ),
             body: ListView(padding: const EdgeInsets.all(20), children: [
@@ -252,6 +263,9 @@ class _CreateBookPageState extends State<CreateBookPage> {
                       setState(() {
                         newPages.remove(page);
                         forTts.remove(page.text);
+                        print('oldPages: $oldPages');
+                        print('newPages: $newPages');
+                        print("isDiff: ${newPages == oldPages}");
                       });
                     },
                   ))
@@ -339,9 +353,10 @@ class _CreateBookPageState extends State<CreateBookPage> {
             ),
           ),
           _isLoading
-              ? Positioned.fill(
-                  child: ColoredBox(
-                    color: blackColor.withOpacity(0.5),
+              ? Scaffold(
+                  backgroundColor: blackColor.withOpacity(0.5),
+                  body: SizedBox(
+                    width: screenSize.width,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
