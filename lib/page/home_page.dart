@@ -113,7 +113,9 @@ class _HomePageState extends State<HomePage> {
                       )),
                 ),
               ),
-              ...bookProvider.books.map((book) => BookCard(book: book))
+              ...bookProvider.books.map(
+                (book) => BookCard(book: book),
+              )
             ],
           );
         },
