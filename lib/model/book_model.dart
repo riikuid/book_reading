@@ -43,9 +43,11 @@ class BookModel {
     return BookModel(
       id: id,
       title: json["title"],
-      pages: json['pages']
-          .map<PageModel>((item) => PageModel.fromJson(item))
-          .toList(),
+      pages: json['pages'] != null
+          ? json['pages']
+              .map<PageModel>((item) => PageModel.fromJson(item))
+              .toList()
+          : [],
       updatedAt: updatedAt,
       userId: json["user_id"],
     );

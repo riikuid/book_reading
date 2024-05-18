@@ -26,7 +26,10 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        return ios;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for ios - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -51,20 +54,9 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCPAsLq-vfRo-8GVpGYh2vbPFqlo8AU4p4',
-    appId: '1:1056618936490:android:bd968e1f75c2a23b25f8d3',
+    appId: '1:1056618936490:android:0e9b07cece75ec2025f8d3',
     messagingSenderId: '1056618936490',
     projectId: 'silabel-hariz',
     storageBucket: 'silabel-hariz.appspot.com',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDvtQiw3I8m2wN5Pi20J5hy6YdAZnpVBms',
-    appId: '1:1056618936490:ios:42d9845a11c0013225f8d3',
-    messagingSenderId: '1056618936490',
-    projectId: 'silabel-hariz',
-    storageBucket: 'silabel-hariz.appspot.com',
-    androidClientId: '1056618936490-9r6n6anc2062usd81ehr9jmhl96m90a9.apps.googleusercontent.com',
-    iosClientId: '1056618936490-7i4eoasre7l1g60pm3cppjoemj24178o.apps.googleusercontent.com',
-    iosBundleId: 'com.example.bookReading',
   );
 }

@@ -1,9 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 
-import 'package:book_reading/model/page_model.dart';
+import 'package:book_reading/service/book_firebase.dart';
 import 'package:book_reading/theme.dart';
 import 'package:book_reading/widget/book_page_widget.dart';
+import 'package:book_reading/widget/delete_alert.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,7 @@ class _CreateBookPageState extends State<CreateBookPage> {
   FlutterTts flutterTts = FlutterTts();
   List<String> forTts = [];
   bool isPlaying = false;
+  String errorText = "Failed to delete book";
   // TtsState ttsState = TtsStat.stopped;
 
   void _pickedImage() {
@@ -104,7 +106,7 @@ class _CreateBookPageState extends State<CreateBookPage> {
           setState(() {
             ocrResult = text;
             forTts.add(text);
-            // addPage(text);
+            BookFirebase.addPageToBook(widget.bookId, text);
             _isLoading = false;
           });
         }
@@ -148,7 +150,15 @@ class _CreateBookPageState extends State<CreateBookPage> {
   }
 
   Future _speak(String text) async {
-    await flutterTts.speak(text);
+    bool result = await flutterTts.speak(text);
+    if (result) {
+      setState(() {
+        isPlaying = false;
+      });
+    }
+    // setState(() {
+    //   isPlaying = false;
+    // });
     // if (result == 1) setState(() => ttsState = TtsState.playing);
   }
 
@@ -158,6 +168,9 @@ class _CreateBookPageState extends State<CreateBookPage> {
     });
     String text = listText.join("\n");
     await flutterTts.speak(text);
+    // setState(() {
+    //   isPlaying = false;
+    // });
     // if (result == 1) setState(() => ttsState = TtsState.playing);
   }
 
@@ -218,8 +231,12 @@ class _CreateBookPageState extends State<CreateBookPage> {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
+                  return Scaffold(
+                    body: Center(
+                      child: CircularProgressIndicator(
+                        color: primaryColor500,
+                      ),
+                    ),
                   );
                 }
                 final data = snapshot.data?.data();
@@ -234,6 +251,50 @@ class _CreateBookPageState extends State<CreateBookPage> {
                     backgroundColor: greyBackgroundColor,
                     appBar: AppBar(
                       title: Text(book.title),
+                      leading: IconButton(
+                        onPressed: () {
+                          if (book.pages.isEmpty) {
+                            showDialog<void>(
+                              context: context,
+                              barrierDismissible: true, // user must tap button!
+
+                              builder: (BuildContext context) {
+                                return DeleteAlert(
+                                  useIcon: false,
+                                  title: "Buku Kosong",
+                                  confirmationText: "Keluar",
+                                  description:
+                                      "Buku akan otomatis terhapus apabila\n anda keluar",
+                                  onTapDelete: () async {
+                                    await BookFirebase.deleteBookFromFirestore(
+                                      bookId: book.id,
+                                      errorCallback: (p0) => setState(
+                                        () {
+                                          errorText = p0;
+                                        },
+                                      ),
+                                    ).then((value) {
+                                      if (value) {
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
+                                      } else {
+                                        Navigator.pop(context);
+                                        Fluttertoast.showToast(msg: errorText);
+                                      }
+                                    });
+                                  },
+                                );
+                              },
+                            );
+                          } else {
+                            Navigator.pop(context);
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.arrow_back,
+                          // size: 20,
+                        ),
+                      ),
                     ),
                     body: ListView(
                       padding: const EdgeInsets.all(20),
@@ -246,16 +307,15 @@ class _CreateBookPageState extends State<CreateBookPage> {
                               ).toString(),
                               page: page.text,
                               onSpeakButtonPressed: () async {
-                                await _speak(page.text);
                                 setState(() {
                                   isPlaying = true;
                                 });
+                                await _speak(page.text);
                               },
-                              onDeleteButtonPressed: () {
-                                // setState(() {
-                                //   newPages.remove(page);
-                                //   forTts.remove(page);
-                                // });
+                              onDeleteButtonPressed: () async {
+                                await BookFirebase.removePageFromBook(
+                                    widget.bookId, page.id);
+                                setState(() {});
                               },
                             ))
                       ],

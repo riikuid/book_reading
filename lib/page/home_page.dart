@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:book_reading/model/book_model.dart';
 import 'package:book_reading/model/page_model.dart';
+import 'package:book_reading/page/auth/sign_in_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,7 +29,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool isEnable = false;
-  bottomSheet(BuildContext context) {}
 
   @override
   void dispose() {
@@ -63,6 +63,8 @@ class _HomePageState extends State<HomePage> {
         final book = BookModel.fromJson(bookData, doc.id);
         books.add(book);
       }
+
+      books.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
       return books;
     }
@@ -173,134 +175,173 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          GestureDetector(
-            onTap: () async {
-              await FirebaseAuth.instance.signOut();
-              await GoogleSignIn().signOut();
-            },
-            child: Text(
-              "Logout",
-            ),
-          )
-        ],
-        title: Column(
-          children: [
-            Text(widget.user.providerData.first.displayName ?? "Tidak ada"),
-          ],
-        ),
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: greyBackgroundColor,
+      //   actions: [
+      //     GestureDetector(
+      //       onTap: () async {
+      //         await FirebaseAuth.instance.signOut();
+      //         await GoogleSignIn().signOut();
+      //       },
+      //       child: const Text(
+      //         "Logout",
+      //       ),
+      //     )
+      //   ],
+      //   title: Column(
+      //     children: [
+      //       Text(widget.user.providerData.first.displayName ?? "Tidak ada"),
+      //     ],
+      //   ),
+      // ),
       backgroundColor: greyBackgroundColor,
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('books')
-            .where(
-              'user_id',
-              isEqualTo: widget.user.uid,
-            )
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          // var books = snapshot.data!.docs;
-          List<BookModel> books = [];
-          for (var doc in snapshot.data!.docs) {
-            var book = BookModel.fromJson(doc.data(), doc.id);
-            books.add(book);
-          }
-
-          return GridView(
-            padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
+      body: Padding(
+        padding: EdgeInsets.only(
+          // padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+          left: 20,
+          right: 20,
+          top: MediaQuery.of(context).padding.top,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Hai ${widget.user.providerData.first.displayName!.split(" ").first}",
+                ),
+                IconButton(
+                    onPressed: () async {
+                      await FirebaseAuth.instance.signOut();
+                      await GoogleSignIn().signOut();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SignInPage(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.logout,
+                    ))
+              ],
             ),
-            children: [
-              DottedBorder(
-                radius: const Radius.circular(12),
-                dashPattern: [9, 5],
-                borderType: BorderType.RRect,
-                child: SizedBox(
-                  height: 200,
-                  width: 200,
-                  child: IconButton(
-                      style: IconButton.styleFrom(
-                        elevation: 2,
-                        padding: const EdgeInsets.all(20),
-                        backgroundColor: primaryColor50,
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(
-                            color: subtitle1TextColor,
-                            style: BorderStyle.none,
-                          ),
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(12.0),
-                          ),
+            Expanded(
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('books')
+                    .where(
+                      'user_id',
+                      isEqualTo: widget.user.uid,
+                    )
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  // var books = snapshot.data!.docs;
+                  List<BookModel> books = [];
+                  for (var doc in snapshot.data!.docs) {
+                    var book = BookModel.fromJson(doc.data(), doc.id);
+                    books.add(book);
+                  }
+
+                  return GridView(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                    ),
+                    children: [
+                      DottedBorder(
+                        radius: const Radius.circular(12),
+                        dashPattern: [9, 5],
+                        borderType: BorderType.RRect,
+                        child: SizedBox(
+                          height: 200,
+                          width: 200,
+                          child: IconButton(
+                              style: IconButton.styleFrom(
+                                elevation: 2,
+                                padding: const EdgeInsets.all(20),
+                                backgroundColor: primaryColor50,
+                                shape: RoundedRectangleBorder(
+                                  side: BorderSide(
+                                    color: subtitle1TextColor,
+                                    style: BorderStyle.none,
+                                  ),
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(12.0),
+                                  ),
+                                ),
+                              ),
+                              onPressed: () {
+                                // print(widget.user);
+                                showModalBottomSheet<void>(
+                                  shape: const ContinuousRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(20.0),
+                                      topRight: Radius.circular(20.0),
+                                    ),
+                                  ),
+                                  backgroundColor: Colors.white,
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (BuildContext context) {
+                                    return CustomBottomSheet();
+                                  },
+                                );
+                              },
+                              icon: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Buat Kelompok\nBuku Baru",
+                                    textAlign: TextAlign.center,
+                                    style: primaryTextStyle.copyWith(
+                                      fontWeight: regular,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  DecoratedBox(
+                                    decoration: BoxDecoration(
+                                        borderRadius: const BorderRadius.all(
+                                          Radius.circular(8.0),
+                                        ),
+                                        border: Border.all(
+                                          width: 1.5,
+                                          color: primaryColor500,
+                                        )),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(5),
+                                      child: Icon(
+                                        Icons.add,
+                                        size: 20,
+                                        weight: 2,
+                                        color: primaryColor500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )),
                         ),
                       ),
-                      onPressed: () {
-                        // print(widget.user);
-                        showModalBottomSheet<void>(
-                          shape: const ContinuousRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20.0),
-                              topRight: Radius.circular(20.0),
-                            ),
-                          ),
-                          backgroundColor: Colors.white,
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (BuildContext context) {
-                            return CustomBottomSheet();
-                          },
-                        );
-                      },
-                      icon: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Buat Kelompok\nBuku Baru",
-                            textAlign: TextAlign.center,
-                            style: primaryTextStyle.copyWith(
-                              fontWeight: regular,
-                              fontSize: 12,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          DecoratedBox(
-                            decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(8.0),
-                                ),
-                                border: Border.all(
-                                  width: 1.5,
-                                  color: primaryColor500,
-                                )),
-                            child: Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: Icon(
-                                Icons.add,
-                                size: 20,
-                                weight: 2,
-                                color: primaryColor500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      )),
-                ),
+                      ...books.map((book) => BookCard(book: book))
+                    ],
+                  );
+                },
               ),
-              ...books.map((book) => BookCard(book: book))
-            ],
-          );
-        },
+            ),
+          ],
+        ),
       ),
     );
   }

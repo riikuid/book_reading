@@ -1,6 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:developer';
+
 import 'package:book_reading/page/book/create_book_page.dart';
+import 'package:book_reading/service/book_firebase.dart';
 import 'package:book_reading/theme.dart';
+import 'package:book_reading/widget/delete_alert.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_reading/model/book_model.dart';
@@ -15,23 +19,35 @@ class BookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onLongPress: () async {
+        return showDialog<void>(
+          context: context,
+          barrierDismissible: true, // user must tap button!
+
+          builder: (BuildContext context) {
+            return DeleteAlert(
+              onTapDelete: () async {
+                await BookFirebase.deleteBookFromFirestore(bookId: book.id);
+                Navigator.pop(context);
+              },
+            );
+          },
+        );
+      },
       onTap: () {
-        print("INI ADALAH ID BUKU ${book.id}");
-        print(book.toJson());
+        log("INI ADALAH ID BUKU ${book.id}");
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => CreateBookPage(bookId: book.id)));
+          context,
+          MaterialPageRoute(
+            builder: (context) => CreateBookPage(bookId: book.id),
+          ),
+        );
       },
       child: AspectRatio(
         aspectRatio: 1 / 1,
         child: Container(
           decoration: const BoxDecoration(
             color: Color(0xFFFFF4E4),
-            // border: Border.all(
-            //     // width: 1.0,
-            //     // color: primaryColor500,
-            //     ),
             boxShadow: [
               BoxShadow(
                 color: Color(0x19000000),

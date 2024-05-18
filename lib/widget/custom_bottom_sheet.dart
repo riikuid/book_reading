@@ -1,5 +1,6 @@
 import 'package:book_reading/model/book_model.dart';
 import 'package:book_reading/page/book/create_book_page.dart';
+import 'package:book_reading/service/book_firebase.dart';
 import 'package:book_reading/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,15 @@ class CustomBottomSheet extends StatefulWidget {
 
 class _CustomBottomSheetState extends State<CustomBottomSheet> {
   TextEditingController bookTitleController = TextEditingController();
+  // Mendapatkan instance FirebaseAuth
+  FirebaseAuth auth = FirebaseAuth.instance;
+
+  // Mendapatkan detail pengguna yang sedang login
+  late User? user = auth.currentUser;
+
   bool isEnable = false;
+  bool _isLoading = false;
+
   @override
   void dispose() {
     bookTitleController.dispose();
@@ -125,21 +134,30 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
-                child: Text(
-                  "BUAT BUKU",
-                  style: primaryTextStyle.copyWith(
-                    color: whiteColor,
-                    fontWeight: semibold,
-                  ),
-                ),
                 onPressed: isEnable
-                    ? () {
+                    ? () async {
                         if (bookTitleController.text.isEmpty) {
-                          print("error");
                           // setState(() {
                           //   showError = true;
                           // });
                         } else {
+                          setModalState(() {
+                            _isLoading = true;
+                          });
+                          BookModel newbook =
+                              await BookFirebase.addBookToFirestore(
+                            bookTitleController.text,
+                            user!.uid,
+                          );
+                          setModalState(() {
+                            _isLoading = false;
+                          });
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    CreateBookPage(bookId: newbook.id),
+                              ));
                           // setState(() {
                           //   var showError = false;
                           // });
@@ -162,6 +180,15 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                         }
                       }
                     : () {},
+                child: _isLoading
+                    ? CircularProgressIndicator()
+                    : Text(
+                        "BUAT BUKU",
+                        style: primaryTextStyle.copyWith(
+                          color: whiteColor,
+                          fontWeight: semibold,
+                        ),
+                      ),
               ),
             ),
             const SizedBox(
