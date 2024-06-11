@@ -65,6 +65,7 @@ class BookPageWidget extends StatelessWidget {
                     onPressed: onDeleteButtonPressed,
                     icon: Icon(
                       Icons.delete,
+                      semanticLabel: "Hapus",
                       size: 18,
                       color: whiteColor,
                     ),

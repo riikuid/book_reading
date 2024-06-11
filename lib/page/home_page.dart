@@ -200,7 +200,7 @@ class _HomePageState extends State<HomePage> {
           // padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
           left: 20,
           right: 20,
-          top: MediaQuery.of(context).padding.top,
+          top: MediaQuery.of(context).padding.top + 10,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -209,8 +209,24 @@ class _HomePageState extends State<HomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "Hai ${widget.user.providerData.first.displayName!.split(" ").first}",
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Hai ${widget.user.providerData.first.displayName!.split(" ").first},",
+                      style: primaryTextStyle.copyWith(
+                        fontWeight: bold,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 2,
+                    ),
+                    Text(
+                      "Jelajahi Literasi Bersama SiFabel!",
+                      style: primaryTextStyle.copyWith(
+                          fontSize: 12, fontWeight: regular),
+                    ),
+                  ],
                 ),
                 IconButton(
                     onPressed: () async {
@@ -223,8 +239,10 @@ class _HomePageState extends State<HomePage> {
                         ),
                       );
                     },
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.logout,
+                      color: primaryColor800,
+                      semanticLabel: "Logout",
                     ))
               ],
             ),

@@ -49,11 +49,11 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       'Buat Buku Baru',
@@ -64,10 +64,17 @@ class _CustomBottomSheetState extends State<CustomBottomSheet> {
                     ),
                   ],
                 ),
-                Icon(
-                  Icons.close,
-                  size: 20,
-                  color: subtitle1TextColor,
+                IconButton(
+                  style: IconButton.styleFrom(
+                    fixedSize: Size(20, 20),
+                    padding: EdgeInsets.zero,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                  icon: Icon(
+                    Icons.close,
+                    size: 20,
+                    color: subtitle1TextColor,
+                  ),
                 ),
               ],
             ),

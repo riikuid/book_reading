@@ -250,7 +250,16 @@ class _CreateBookPageState extends State<CreateBookPage> {
                   return Scaffold(
                     backgroundColor: greyBackgroundColor,
                     appBar: AppBar(
-                      title: Text(book.title),
+                      backgroundColor: primaryColor400,
+                      surfaceTintColor: Colors.transparent,
+                      title: Text(
+                        book.title,
+                        style: primaryTextStyle.copyWith(
+                          color: whiteColor,
+                          fontWeight: semibold,
+                          fontSize: 18,
+                        ),
+                      ),
                       leading: IconButton(
                         onPressed: () {
                           if (book.pages.isEmpty) {
@@ -290,8 +299,9 @@ class _CreateBookPageState extends State<CreateBookPage> {
                             Navigator.pop(context);
                           }
                         },
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.arrow_back,
+                          color: whiteColor,
                           // size: 20,
                         ),
                       ),
