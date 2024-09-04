@@ -1,14 +1,9 @@
 import 'package:book_reading/firebase_options.dart';
-import 'package:book_reading/page/auth/sign_in_page.dart';
 import 'package:book_reading/page/auth_wapper.dart';
-import 'package:book_reading/page/home_page.dart';
-import 'package:book_reading/provider/book_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'SiFabel',
       theme: ThemeData(
         textTheme: GoogleFonts.poppinsTextTheme(),
         useMaterial3: true,

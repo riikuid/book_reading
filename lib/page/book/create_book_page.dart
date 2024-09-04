@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:book_reading/service/book_firebase.dart';
@@ -150,12 +151,18 @@ class _CreateBookPageState extends State<CreateBookPage> {
   }
 
   Future _speak(String text) async {
-    bool result = await flutterTts.speak(text);
-    if (result) {
-      setState(() {
-        isPlaying = false;
-      });
+    // await flutterTts.speak(text);
+    try {
+      print(text);
+      await flutterTts.speak(text);
+    } catch (e) {
+      print("Error occurred while speaking: $e");
     }
+    // if (result) {
+    //   setState(() {
+    //     isPlaying = false;
+    //   });
+    // }
     // setState(() {
     //   isPlaying = false;
     // });
@@ -167,11 +174,23 @@ class _CreateBookPageState extends State<CreateBookPage> {
       isPlaying = true;
     });
     String text = listText.join("\n");
-    await flutterTts.speak(text);
+    log(text);
+    // await flutterTts.speak(text);
     // setState(() {
     //   isPlaying = false;
     // });
     // if (result == 1) setState(() => ttsState = TtsState.playing);
+    try {
+      await flutterTts.speak(text);
+      setState(() {
+        isPlaying = false;
+      });
+    } catch (e) {
+      log("Error occurred while speaking: $e");
+      setState(() {
+        isPlaying = false;
+      });
+    }
   }
 
   Future _stop() async {
