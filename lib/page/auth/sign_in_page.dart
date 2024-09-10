@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -15,6 +16,8 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   bool isObscure = true;
   bool isLoading = false;
+  final Uri _url = Uri.parse(
+      'https://sifabel.myr.id/membership/berlangganan-aplikasi-sifabel');
 
   Future<User?> loginWithGoogle() async {
     final googleAccount = await GoogleSignIn().signIn();
@@ -31,6 +34,18 @@ class _SignInPageState extends State<SignInPage> {
         userCredential.additionalUserInfo!.authorizationCode);
 
     return userCredential.user;
+  }
+
+  Future<void> _launchUrl() async {
+    setState(() {
+      isLoading = true;
+    });
+    if (!await launchUrl(_url)) {
+      throw Exception('Could not launch $_url');
+    }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   handleSignIn() async {
@@ -166,6 +181,49 @@ class _SignInPageState extends State<SignInPage> {
                       ],
                     ),
                   ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      elevation: 1,
+                      fixedSize: const Size(double.infinity, 50),
+                      shadowColor: primaryColor900,
+                      backgroundColor: whiteColor,
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          color: const Color(0xFF00415a).withOpacity(0.3),
+                        ),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(10.0),
+                        ),
+                      ),
+                    ),
+                    onPressed: _launchUrl,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Mulai Berlangganan",
+                          style: primaryTextStyle.copyWith(
+                            color: const Color(0xFF00415a),
+                            fontWeight: bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // GestureDetector(
+                  //   onTap: _launchUrl,
+                  //   child: Text(
+                  //     'Berlangganan',
+                  //     style: primaryTextStyle.copyWith(
+                  //       fontSize: 10,
+                  //       color: const Color(0xFF00415a),
+                  //       fontWeight: medium,
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
