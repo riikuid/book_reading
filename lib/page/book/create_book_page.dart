@@ -39,7 +39,6 @@ class _CreateBookPageState extends State<CreateBookPage> {
   bool isPlaying = false;
 
   // TtsState ttsState = TtsStat.stopped;
-
   void _pickedImage() {
     showDialog<ImageSource>(
       context: context,
@@ -191,13 +190,14 @@ class _CreateBookPageState extends State<CreateBookPage> {
   // late bool isDiff;
 
   @override
-  void initState() async {
+  void initState() {
     oldPages = widget.book.pages;
     newPages = List.from(oldPages);
-    bool isLanguageAvailable = await flutterTts.isLanguageAvailable("id-ID");
-    if (isLanguageAvailable) {
-      flutterTts.setLanguage("id-ID");
-    }
+    // bool isLanguageAvailable = flutterTts.isLanguageAvailable("id-ID");
+    // if (isLanguageAvailable) {
+
+    // }
+    flutterTts.setLanguage("id-ID");
     addTextForTts();
     super.initState();
   }
